@@ -1,4 +1,4 @@
-module Domain.User exposing (User)
+module Domain.User exposing (User, FirebaseUser)
 
 type alias User = 
   { uid : String
@@ -11,3 +11,10 @@ type alias User =
   , display_name : String
   }
 
+type alias FirebaseUser = 
+  { uid:  String
+  , displayName : String
+  , email : String
+  , emailVerified : Bool
+  , isAnonymous : Bool 
+  }

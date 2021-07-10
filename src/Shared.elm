@@ -5,7 +5,7 @@ module Shared exposing
     , init
     , subscriptions
     , update
-    , FirebaseUser
+    , User
     )
 
 import Json.Decode as Json
@@ -18,17 +18,12 @@ type alias Flags =
 
 
 type alias Model =
-  { firebaseUser : Maybe FirebaseUser 
+  { firebaseUser : Maybe Domain.User.FirebaseUser 
   , user : Maybe Domain.User.User
   }
 
-type alias FirebaseUser = 
-  { uid:  String
-  , displayName : String
-  , email : String
-  , emailVerified : Bool
-  , isAnonymous : Bool 
-  }
+type alias User = Domain.User.User
+
 
 
 
