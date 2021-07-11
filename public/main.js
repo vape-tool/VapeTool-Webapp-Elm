@@ -17,7 +17,7 @@ import { Elm } from '../.elm-spa/defaults/Main.elm'
 
 const app = Elm.Main.init({node: document.getElementById("elm-node")})
 
-app.ports.signIn.subscribe(() => {
+app.ports.signInWithGoogle.subscribe(() => {
   console.log("LogIn called");
   firebase
     .auth()

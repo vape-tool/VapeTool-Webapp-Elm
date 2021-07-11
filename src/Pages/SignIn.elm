@@ -1,5 +1,4 @@
-port module Pages.SignIn exposing (Model, Msg, page)
-
+port module Pages.SignIn exposing (Model, Msg(..), page)
 
 import Gen.Params.SignIn exposing (Params)
 import Html exposing (Html, button, div, h1, h2, h3, img, input, p, text)
@@ -14,10 +13,26 @@ import UI
 import View exposing (View)
 
 
-port signInGoogle : () -> Cmd msg
+
+-- import Firebase exposing (Msg(..))
 
 
-port signInFacebook : () -> Cmd msg
+port signInWithFacebook : () -> Cmd msg
+
+
+port signInWithGoogle : () -> Cmd msg
+
+
+port signInInfo : (Json.Encode.Value -> msg) -> Sub msg
+
+
+port signOut : () -> Cmd msg
+
+
+port signInError : (Json.Encode.Value -> msg) -> Sub msg
+
+
+port receiveMessages : (Json.Encode.Value -> msg) -> Sub msg
 
 
 type alias ErrorData =
@@ -48,7 +63,12 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { userData = Maybe.Nothing, error = emptyError, inputContent = "", messages = [] }, Cmd.none )
+    ( emptyModel, Cmd.none )
+
+
+emptyModel : Model
+emptyModel =
+    { userData = Maybe.Nothing, error = emptyError, inputContent = "", messages = [] }
 
 
 emptyError : ErrorData
@@ -63,18 +83,27 @@ emptyError =
 type Msg
     = ClickedLoginWithGoogle
     | ClickedLoginWithFacebook
+    | LoggedIn
+    | LogOut
     | LoggedInData (Result Json.Decode.Error UserData)
     | LoggedInError (Result Json.Decode.Error ErrorData)
+    | MessagesReceived (Result Json.Decode.Error (List String))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickedLoginWithGoogle ->
-            ( model, signInGoogle () )
+            ( model, signInWithGoogle () )
 
         ClickedLoginWithFacebook ->
-            ( model, signInFacebook () )
+            ( model, signInWithFacebook () )
+
+        LoggedIn ->
+            ( emptyModel, Cmd.none )
+
+        LogOut ->
+            ( { model | userData = Maybe.Nothing, error = emptyError }, signOut () )
 
         LoggedInData result ->
             case result of
@@ -92,21 +121,65 @@ update msg model =
                 Err error ->
                     ( { model | error = messageToError <| Json.Decode.errorToString error }, Cmd.none )
 
+        MessagesReceived result ->
+            case result of
+                Ok value ->
+                    ( { model | messages = value }, Cmd.none )
+
+                Err error ->
+                    ( { model | error = messageToError <| Json.Decode.errorToString error }, Cmd.none )
+
 
 view : Model -> View Msg
 view model =
     { title = "Sign In"
-    , body = UI.layout
-            [ button [ Events.onClick ClickedLoginWithGoogle ] [ text "Login with Google" ]
-            , button [ Events.onClick ClickedLoginWithFacebook ] [ text "Login with Facebook" ]
+    , body =
+        UI.layout
+            [ button [ Events.onClick ClickedLoginWithFacebook ] [ text "Login with Facebook" ]
             , h2 [] [ text <| errorPrinter model.error ]
+            , case model.userData of
+                Just _ ->
+                    button [ Events.onClick LogOut ] [ text "Logout from Google" ]
+
+                Maybe.Nothing ->
+                    button [ Events.onClick ClickedLoginWithGoogle ] [ text "Login with Google" ]
             ]
-            }
+    }
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.none
+subscriptions model =
+    Sub.batch
+        [ signInInfo (Json.Decode.decodeValue userDataDecoder >> LoggedInData)
+        , signInError (Json.Decode.decodeValue logInErrorDecoder >> LoggedInError)
+        , receiveMessages (Json.Decode.decodeValue messageListDecoder >> MessagesReceived)
+        ]
+
+
+userDataDecoder : Json.Decode.Decoder UserData
+userDataDecoder =
+    Json.Decode.succeed UserData
+        |> Json.Decode.Pipeline.required "token" Json.Decode.string
+        |> Json.Decode.Pipeline.required "email" Json.Decode.string
+        |> Json.Decode.Pipeline.required "uid" Json.Decode.string
+
+
+logInErrorDecoder : Json.Decode.Decoder ErrorData
+logInErrorDecoder =
+    Json.Decode.succeed ErrorData
+        |> Json.Decode.Pipeline.required "code" (Json.Decode.nullable Json.Decode.string)
+        |> Json.Decode.Pipeline.required "message" (Json.Decode.nullable Json.Decode.string)
+        |> Json.Decode.Pipeline.required "credential" (Json.Decode.nullable Json.Decode.string)
+
+
+messagesDecoder =
+    Json.Decode.decodeString (Json.Decode.list Json.Decode.string)
+
+
+messageListDecoder : Json.Decode.Decoder (List String)
+messageListDecoder =
+    Json.Decode.succeed identity
+        |> Json.Decode.Pipeline.required "messages" (Json.Decode.list Json.Decode.string)
 
 
 messageToError : String -> ErrorData
