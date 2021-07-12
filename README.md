@@ -3,12 +3,12 @@
 ## Development
 
 ```bash
-parcel index.html
+NODE_ENV=development parcel index.html
 ```
 
 ### Production
 
 ```bash
-NODE_ENV=development parcel build index.html
+parcel build index.html
 ```
 
