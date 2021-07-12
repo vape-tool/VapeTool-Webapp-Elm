@@ -1,5 +1,6 @@
 module Page exposing (Page(..), view, viewErrors)
 
+import Browser.Navigation as Nav
 import Route exposing (Route)
 import Browser exposing (Document)
 import Html exposing (Html, a, button, div, footer, i, img, li, nav, p, span, text, ul)
@@ -24,8 +25,8 @@ The caller provides the current user, so we can display in either
 isLoading is for determining whether we should show a loading spinner
 in the header. (This comes up during slow page transitions.)
 -}
-view : Page -> { title : String, content : Html msg } -> Document msg
-view page { title, content } =
+view : Nav.Key -> Page -> { title : String, content : Html msg } -> Document msg
+view key page { title, content } =
     { title = title ++ " - Conduit"
     , body = viewHeader page :: content :: [ viewFooter ]
     }
@@ -50,8 +51,7 @@ viewMenu page =
         linkTo =
             navbarLink page
     in
-            [ linkTo Route.Login [ text "Sign in" ]
-            , linkTo Route.Register [ text "Sign up" ]
+            [ linkTo Route.Home [ text "Home" ]
             , linkTo Route.OhmLaw [ text "Ohm Law" ]
             ]
 

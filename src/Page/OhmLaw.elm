@@ -1,4 +1,4 @@
-module Page.OhmLaw exposing (view, Model, Msg, init, toSession)
+module Page.OhmLaw exposing (view, Model, Msg, init, toSession, update)
 
 import Browser.Navigation as Nav
 import Html exposing (..)
@@ -28,8 +28,8 @@ type Inputs
 -- MODEL
 
 
-init : ( Model, Cmd Msg )
-init = ( emptyModel, Cmd.none )
+init : Nav.Key -> ( Model, Cmd Msg )
+init key = ( emptyModel key, Cmd.none )
 
 
 
@@ -118,7 +118,13 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
       ClickedCalculate -> (calculate model, Cmd.none)
-      Clean -> ( emptyModel, Cmd.none )
+      Clean -> ( 
+        { model | power = ""
+        , current = ""
+        , voltage = ""
+        , resistance = ""
+        , lastEdit = Nothing
+        , latestEdit = Nothing }, Cmd.none )
       Changed what newValue ->
         let newModel = updateLasts what (updateField model what newValue)
         in (newModel, Cmd.none)
@@ -127,9 +133,10 @@ update msg model =
 
 
 
-emptyModel : Model
-emptyModel = 
-  { power = ""
+emptyModel : Nav.Key -> Model
+emptyModel key = 
+  { session = key
+  , power = ""
   , current = ""
   , voltage = ""
   , resistance = ""

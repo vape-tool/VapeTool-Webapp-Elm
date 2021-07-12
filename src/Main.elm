@@ -24,9 +24,8 @@ type Model
 
 
 init : () -> Url -> Nav.Key ->  ( Model, Cmd Msg )
-init flags url key =
-  changeRouteTo (Route.fromUrl url) 
-    ( Redirect key, Cmd.none )
+init _ url key =
+  changeRouteTo (Route.fromUrl url) (Redirect key)
 
 
 
@@ -43,7 +42,7 @@ view model =
         viewPage page toMsg config =
             let
                 { title, body } =
-                    Page.view page config
+                    Page.view session page config
             in
             { title = title
             , body = List.map (Html.map toMsg) body
@@ -57,7 +56,7 @@ view model =
             Page.view session Page.Other NotFound.view
 
         Home _ ->
-            Page.view Page.Home Home.view
+            Page.view session Page.Home Home.view
 
         OhmLaw ohmLaw ->
             viewPage Page.Other GotOhmLawMsg (OhmLaw.view ohmLaw)
@@ -78,22 +77,31 @@ toSession page =
         Redirect session ->
             session
 
+        NotFound session ->
+            session
+
+        Home session ->
+            session
+
         OhmLaw ohmLaw ->
             OhmLaw.toSession ohmLaw
 
 
 changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
 changeRouteTo maybeRoute model =
-    case maybeRoute of
+    let session = toSession model
+    in case maybeRoute of
         Nothing ->
-            ( NotFound, Cmd.none )
+            ( NotFound session, Cmd.none )
 
         Just Route.Root ->
-            ( model, Route.replaceUrl (model.key) Route.Home )
+            ( model, Route.replaceUrl session Route.Home )
 
         Just Route.OhmLaw ->
-            OhmLaw.init 
+            OhmLaw.init session
                 |> updateWith OhmLaw GotOhmLawMsg model
+        Just Route.Home -> 
+            ( model, Route.replaceUrl session Route.Home )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -126,6 +134,12 @@ update msg model =
 
         ( ChangedUrl url, _ ) ->
             changeRouteTo (Route.fromUrl url) model
+        ( GotOhmLawMsg subMsg, OhmLaw ohmLaw ) ->
+          OhmLaw.update subMsg ohmLaw
+            |> updateWith OhmLaw GotOhmLawMsg model
+        ( _, _ ) ->
+          -- Disregard messages that arrived for the wrong page.
+          (model, Cmd.none)
 
 
 updateWith : (subModel -> Model) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )

@@ -14,20 +14,13 @@ import Url.Parser as Parser exposing ((</>), Parser, oneOf, s, string)
 type Route
     = Home
     | Root
-    | Login
-    | Logout
-    | Register
     | OhmLaw
-    | Settings
 
 
 parser : Parser (Route -> a) a
 parser =
     oneOf
         [ Parser.map Home Parser.top
-        , Parser.map Login (s "login")
-        , Parser.map Logout (s "logout")
-        , Parser.map Settings (s "settings")
         ]
 
 
@@ -74,15 +67,3 @@ routeToPieces page =
 
         OhmLaw -> 
             [ "ohm-law" ]
-
-        Login ->
-            [ "login" ]
-
-        Logout ->
-            [ "logout" ]
-
-        Register ->
-            [ "register" ]
-
-        Settings ->
-            [ "settings" ]
