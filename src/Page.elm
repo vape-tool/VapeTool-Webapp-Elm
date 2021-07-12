@@ -15,6 +15,7 @@ under Other.
 type Page
     = Other
     | Home
+    | OhmLaw
 
 
 {-| Take a page's Html and frames it with a header and footer.
@@ -51,6 +52,7 @@ viewMenu page =
     in
             [ linkTo Route.Login [ text "Sign in" ]
             , linkTo Route.Register [ text "Sign up" ]
+            , linkTo Route.OhmLaw [ text "Ohm Law" ]
             ]
 
 

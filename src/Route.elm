@@ -17,6 +17,7 @@ type Route
     | Login
     | Logout
     | Register
+    | OhmLaw
     | Settings
 
 
@@ -70,6 +71,9 @@ routeToPieces page =
 
         Root ->
             []
+
+        OhmLaw -> 
+            [ "ohm-law" ]
 
         Login ->
             [ "login" ]
