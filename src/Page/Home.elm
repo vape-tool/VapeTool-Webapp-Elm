@@ -1,18 +1,20 @@
-module Page.Home exposing (view)
+module Page.Home exposing (Model, Msg, view, init)
 
-import Html exposing (Html, div, h1, img, main_, text)
-import Html.Attributes exposing (alt, class, id, src, tabindex)
+import Html exposing (..)
+import Html.Attributes exposing(..)
 
+type Model = 
+  Ok
 
+type Msg = 
+  GotOkMsg
 
--- VIEW
+init : ( Model, Cmd Msg )
+init = ( Ok , Cmd.none )
 
-
-view : { title : String, content : Html msg }
-view =
-    { title = "Home"
+view : { title: String, content : Html msg }
+view = { title = "Home"
     , content =
-        main_ [ id "content", class "container", tabindex -1 ]
-            [ h1 [] [ text "Hello world" ]
-            ]
+        p [ ] [text "Hello World"]
     }
+

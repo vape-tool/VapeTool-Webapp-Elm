@@ -1,41 +1,35 @@
-module Route exposing (Route(..), fromUrl, href, replaceUrl)
+module Route exposing (Route(..), fromUrl, replaceUrl)
 
-import Browser.Navigation as Nav
-import Html exposing (Attribute)
-import Html.Attributes as Attr
 import Url exposing (Url)
-import Url.Parser as Parser exposing ((</>), Parser, oneOf, s, string)
-
-
-
--- ROUTING
-
+import Url.Parser exposing (Parser, parse, (</>), int, map, oneOf, s, string, top)
+import Browser.Navigation as Nav
 
 type Route
-    = Home
-    | Root
-    | OhmLaw
+  = Root
+  | Home
+  | OhmLaw
 
+routeParser : Parser (Route -> a) a
+routeParser =
+  oneOf
+        [ map Home top
+        , map OhmLaw (s "ohm-law")
+    ]
 
-parser : Parser (Route -> a) a
-parser =
-    oneOf
-        [ Parser.map Home Parser.top
-        ]
+-- /topic/pottery        ==>  Just (Topic "pottery")
+-- /topic/collage        ==>  Just (Topic "collage")
+-- /topic/               ==>  Nothing
 
+-- /blog/42              ==>  Just (Blog 42)
+-- /blog/123             ==>  Just (Blog 123)
+-- /blog/mosaic          ==>  Nothing
 
-
--- PUBLIC HELPERS
-
-
-href : Route -> Attribute msg
-href targetRoute =
-    Attr.href (routeToString targetRoute)
-
-
-replaceUrl : Nav.Key -> Route -> Cmd msg
-replaceUrl key route =
-    Nav.replaceUrl key (routeToString route)
+-- /user/tom/            ==>  Just (User "tom")
+-- /user/sue/            ==>  Just (User "sue")
+-- /user/bob/comment/42  ==>  Just (Comment "bob" 42)
+-- /user/sam/comment/35  ==>  Just (Comment "sam" 35)
+-- /user/sam/comment/    ==>  Nothing
+-- /user/                ==>  Nothing
 
 
 fromUrl : Url -> Maybe Route
@@ -43,17 +37,18 @@ fromUrl url =
     -- The RealWorld spec treats the fragment like a path.
     -- This makes it *literally* the path, so we can proceed
     -- with parsing as if it had been a normal path all along.
-    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
-        |> Parser.parse parser
+    parse routeParser url
 
+replaceUrl : Nav.Key -> Route -> Cmd msg
+replaceUrl key route =
+    Nav.replaceUrl key (routeToString route)
 
-
--- INTERNAL
 
 
 routeToString : Route -> String
 routeToString page =
-    "#/" ++ String.join "/" (routeToPieces page)
+    "/" ++ String.join "/" (routeToPieces page)
+
 
 
 routeToPieces : Route -> List String
@@ -65,5 +60,5 @@ routeToPieces page =
         Root ->
             []
 
-        OhmLaw -> 
+        OhmLaw ->
             [ "ohm-law" ]

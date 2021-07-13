@@ -1,4 +1,4 @@
-module Page.OhmLaw exposing (view, Model, Msg, init, toSession, update)
+module Page.OhmLaw exposing (view, Model, Msg, init, update)
 
 import Browser.Navigation as Nav
 import Html exposing (..)
@@ -6,8 +6,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 
 type alias Model =
-    { session : Nav.Key
-    , lastEdit : Maybe Inputs
+    { lastEdit : Maybe Inputs
     , latestEdit : Maybe Inputs
 
     , voltage : String
@@ -28,8 +27,8 @@ type Inputs
 -- MODEL
 
 
-init : Nav.Key -> ( Model, Cmd Msg )
-init key = ( emptyModel key, Cmd.none )
+init : ( Model, Cmd Msg )
+init = ( emptyModel , Cmd.none )
 
 
 
@@ -133,10 +132,9 @@ update msg model =
 
 
 
-emptyModel : Nav.Key -> Model
-emptyModel key = 
-  { session = key
-  , power = ""
+emptyModel : Model
+emptyModel = 
+  { power = ""
   , current = ""
   , voltage = ""
   , resistance = ""
@@ -166,12 +164,4 @@ updateLasts newValue model =
 -- TODO(gbaranski) peruse https://github.com/vape-tool/VapeTool-Webapp/blob/master/src/models/ohm.ts#L44
 calculate : Model -> Model
 calculate model = (model)
-
-
--- EXPORT
-
-
-toSession : Model -> Nav.Key
-toSession model =
-    model.session
 
