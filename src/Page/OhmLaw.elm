@@ -58,41 +58,47 @@ viewForm model =
         [ fieldset [ class "form-group" ]
             [ input
                 [ class "form-control form-control-lg"
+                , type_ "number"
                 , placeholder "Voltage"
                 , onInput (Changed Voltage)
                 , value model.voltage
                 ]
                 []
             ]
+
         , fieldset [ class "form-group" ]
             [ input
                 [ class "form-control form-control-lg"
-                , placeholder "Email"
+                , type_ "number"
+                , placeholder "Resistance"
                 , onInput (Changed Resistance) 
                 , value model.resistance
                 ]
                 []
             ]
+
         , fieldset [ class "form-group" ]
             [ input
                 [ class "form-control form-control-lg"
-                , type_ "password"
-                , placeholder "Password"
+                , type_ "number"
+                , placeholder "Current"
                 , onInput (Changed Current)
                 , value model.current
                 ]
                 []
             ]
+
         , fieldset [ class "form-group" ]
             [ input
                 [ class "form-control form-control-lg"
-                , type_ "password"
+                , type_ "number"
                 , placeholder "Power"
                 , onInput (Changed Power)
                 , value model.power
                 ]
                 []
             ]
+
         , button [ class "btn btn-lg btn-primary pull-xs-right" ]
             [ text "Calculate" ]
         ]

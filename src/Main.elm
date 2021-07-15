@@ -123,6 +123,7 @@ view model =
   case model.pageModel of
     Redirect -> 
       viewPage Page.Blank.view
+
     Home _ ->
       let { title, body } = viewPage (Page.Home.view)
       in { title = title, body = List.map (Html.map GotHomeMsg) body }
