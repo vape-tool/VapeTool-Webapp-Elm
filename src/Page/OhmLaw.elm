@@ -100,7 +100,7 @@ viewForm model =
             ]
 
         , button [ class "btn btn-lg btn-primary pull-xs-right" ]
-            [ text "Calculate" ]
+            [ text "Calculate" onClick calculate ]
         ]
 
 
