@@ -27,7 +27,7 @@ in the header. (This comes up during slow page transitions.)
 -}
 view : Nav.Key -> Page -> { title : String, content : Html msg } -> Document msg
 view key page { title, content } =
-    { title = title ++ " - Conduit"
+    { title = title ++ " - VapeTool"
     , body = viewHeader page :: content :: [ viewFooter ]
     }
 
@@ -37,7 +37,7 @@ viewHeader page =
     nav [ class "navbar navbar-light" ]
         [ div [ class "container" ]
             [ a [ class "navbar-brand", Route.href Route.Home ]
-                [ text "conduit" ]
+                [ text "Vape Tool" ]
             , ul [ class "nav navbar-nav pull-xs-right" ] <|
                 navbarLink page Route.Home [ text "Home" ]
                     :: viewMenu page 
