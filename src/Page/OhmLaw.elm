@@ -54,7 +54,7 @@ view model =
 
 viewForm : Model -> Html Msg
 viewForm model =
-    Html.form [ onSubmit ClickedCalculate ]
+    Html.form [ onSubmit ClickedCalculated ]
         [ fieldset [ class "form-group" ]
             [ input
                 [ class "form-control form-control-lg"
@@ -99,8 +99,7 @@ viewForm model =
                 []
             ]
 
-        , button [ class "btn btn-lg btn-primary pull-xs-right" ]
-            [ text "Calculate" onClick calculate ]
+        , button [ onClick ClickedCalculated ] [ text "Calculate"  ]
         ]
 
 
@@ -116,13 +115,13 @@ viewInput v toMsg =
 type Msg
     = Changed Inputs String
     | Clean
-    | ClickedCalculate
+    | ClickedCalculated
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-      ClickedCalculate -> (calculate model, Cmd.none)
+      ClickedCalculated -> (calculate model, Cmd.none)
       Clean -> ( 
         { model | power = ""
         , current = ""
